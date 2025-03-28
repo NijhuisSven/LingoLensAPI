@@ -34,10 +34,13 @@ setInterval(() => {
     }
 }, 5000);
 
-app.get("/api/test/:name/:message", async (req, res) => {
+// In this route the profile image URL is expected to be passed as a query parameter.
+// Make sure you URL-encode the profile URL when calling the API.
+app.get("/api/whatsapp/:name/:message", async (req, res) => {
     const { name, message } = req.params;
+    const { profile } = req.query; // expect profile URL as a query parameter
     try {
-        const imagePath = await generateImageWithText(name, message);
+        const imagePath = await generateImageWithText(name, profile, message);
         const imageFile = imagePath.split("/").pop();
         const imageUrl = `${req.protocol}://${req.get("host")}/images/${imageFile}`;
         res.json({ username: name, message, image: imageUrl });
@@ -46,4 +49,6 @@ app.get("/api/test/:name/:message", async (req, res) => {
     }
 });
 
-app.listen(3000, () => { console.log("Server listening on http://localhost:3000"); });
+app.listen(3000, () => {
+    console.log("Server listening on http://localhost:3000");
+});
