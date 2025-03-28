@@ -1,6 +1,7 @@
 import { createCanvas } from "canvas";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 const generatedDir = path.join(process.cwd(), "Generated");
 
@@ -317,29 +318,36 @@ function drawInputBar(ctx) {
 
 // --- Hoofd Functie (aangepast) ---
 
-export function generateImageWithText(username, message) {
-    const scale = 2; // Behoud schaling voor hogere resolutie
+export async function generateImageWithText(username, message) {
+    const scale = 3; // Increased scale factor for a sharper image
     const canvas = createCanvas(MOCKUP_WIDTH * scale, MOCKUP_HEIGHT * scale);
     const ctx = canvas.getContext("2d");
 
-    // Schaal context voor hogere resolutie tekenen
+    // Scale the drawing context for higher resolution
     ctx.scale(scale, scale);
 
-    // --- Teken de Chat Mockup ---
+    // --- Draw the Chat Mockup ---
     ctx.fillStyle = COLOR_WHITE;
     ctx.fillRect(0, 0, MOCKUP_WIDTH, MOCKUP_HEIGHT);
 
-    drawChatArea(ctx, message); // Gebruik message voor de bubble content
+    drawChatArea(ctx, message); // Use message for the bubble content
     drawStatusBar(ctx);
-    drawHeader(ctx, username); // Geef het username door
+    drawHeader(ctx, username); // Pass the username
     drawInputBar(ctx);
-    // --- Einde Chat Mockup Tekenen ---
+    // --- End Chat Mockup Drawing ---
 
-    const buffer = canvas.toBuffer("image/png");
+    // First, generate a PNG buffer with high compression
+    const buffer = canvas.toBuffer("image/png", { compressionLevel: 9 });
+    
+    // Use sharp to further compress the PNG by converting it to a paletted image
+    const optimizedBuffer = await sharp(buffer)
+        .png({ compressionLevel: 9, palette: true })  // Enable palette mode for smaller file size
+        .toBuffer();
+
     const timestamp = Date.now();
-    const filename = `image-${timestamp}.png`;
+    const filename = `image-${timestamp}.png`; // Keep .png extension
     const filepath = path.join(generatedDir, filename);
-    fs.writeFileSync(filepath, buffer);
+    fs.writeFileSync(filepath, optimizedBuffer);
     console.log(`File created at ${new Date(timestamp).toLocaleTimeString('en-US', { hour12: false })}: ${filename}`);
 
     return `Generated/${filename}`;

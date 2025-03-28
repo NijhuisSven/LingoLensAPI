@@ -34,10 +34,10 @@ setInterval(() => {
     }
 }, 5000);
 
-app.get("/api/test/:name/:message", (req, res) => {
+app.get("/api/test/:name/:message", async (req, res) => {
     const { name, message } = req.params;
     try {
-        const imagePath = generateImageWithText(name, message);
+        const imagePath = await generateImageWithText(name, message);
         const imageFile = imagePath.split("/").pop();
         const imageUrl = `${req.protocol}://${req.get("host")}/images/${imageFile}`;
         res.json({ username: name, message, image: imageUrl });
