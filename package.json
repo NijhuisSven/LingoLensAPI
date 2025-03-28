@@ -1,0 +1,27 @@
+{
+  "name": "lingolensapi",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NijhuisSven/LingoLensAPI.git"
+  },
+  "keywords": [
+    "Images"
+  ],
+  "author": "NijhuisSven",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NijhuisSven/LingoLensAPI/issues"
+  },
+  "homepage": "https://github.com/NijhuisSven/LingoLensAPI#readme",
+  "description": "",
+  "dependencies": {
+    "canvas": "^3.1.0",
+    "express": "^4.21.2"
+  },
+  "type": "module"
+}
