@@ -156,14 +156,19 @@ async function drawStatusBarTime(ctx) {
 }
 
 export async function generateImageWithText(name, profile, message) {
-  const scale = 2;
+  // Increase the scale factor for a higher resolution output
+  const scale = 3;
   const canvas = createCanvas(MOCKUP_WIDTH * scale, MOCKUP_HEIGHT * scale);
   const ctx = canvas.getContext("2d");
   ctx.scale(scale, scale);
   
+  // Enable high quality image smoothing
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  
   try {
-    // Load the WhatsApp screenshot as background
-    const background = await loadImage(path.join(process.cwd(), "whatsapp.png"));
+    // Load the high resolution WhatsApp screenshot as background
+    const background = await loadImage(path.join(process.cwd(), "Images/whatsapp.png"));
     ctx.drawImage(background, 0, 0, MOCKUP_WIDTH, MOCKUP_HEIGHT);
   } catch (error) {
     console.error("Could not load WhatsApp background:", error);
@@ -173,7 +178,7 @@ export async function generateImageWithText(name, profile, message) {
   }
   
   // Draw all the custom elements
-  await drawStatusBarTime(ctx); // Add the time at the top
+  await drawStatusBarTime(ctx); 
   await drawProfileAndName(ctx, name, profile);
   await drawChatMessage(ctx, message);
   
