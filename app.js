@@ -2,15 +2,21 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import { generateImageWithText } from "./Generate/Whatsapp.js";
+import bodyParser from 'body-parser';
+
 
 const generatedDir = path.join(process.cwd(), "Generated");
 const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded());
 
 if (!fs.existsSync(generatedDir)) {
     fs.mkdirSync(generatedDir);
 }
 
 app.use("/images", express.static(path.join(process.cwd(), "Generated")));
+app.use(express.json());  // Middleware to parse JSON request bodies
 
 function cleanupOldImages() {
     const now = Date.now();
@@ -34,13 +40,15 @@ setInterval(() => {
     }
 }, 5000);
 
-// In this route the profile image URL is expected to be passed as a query parameter.
-// Make sure you URL-encode the profile URL when calling the API.
-app.get("/api/whatsapp/:name/:message", async (req, res) => {
-    const { name, message } = req.params;
-    const { profile } = req.query; // expect profile URL as a query parameter
+app.post("/api/whatsapp", async (req, res) => {
+    const { name, message, profile } = req.body;
+    if (!name || !message) {
+        return res.status(400).json({ error: "Name and message are required" });
+    }
+    
     try {
-        const imagePath = await generateImageWithText(name, profile, message);
+        // profile URL is optional
+        const imagePath = await generateImageWithText(name, profile || null, message);
         const imageFile = imagePath.split("/").pop();
         const imageUrl = `${req.protocol}://${req.get("host")}/images/${imageFile}`;
         res.json({ username: name, message, image: imageUrl });
